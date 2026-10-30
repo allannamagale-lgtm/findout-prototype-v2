@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Pending Claims — FINDOUT{% endblock %}
+{% block content %}
+<div class="narrow-wide">
+  <div class="mb-6">
+    <h1>Pending Claims</h1>
+    <p class="text-secondary">Claims you made that are awaiting confirmation.</p>
+  </div>
+
+  {% if pending.items %}
+  <div class="list-group">
+    {% for c in pending.items %}
+    <div class="claim-card {% if highlight_claim == c.id %}highlight{% endif %}" id="claim-{{ c.id }}">
+      <div class="claim-card-header">
+        <span class="claim-card-title">{{ c.subject.name }} {{ c.subject.surname }}</span>
+        <span class="badge badge-warning">Pending</span>
+      </div>
+      <div class="claim-card-meta">{{ c.relationship_state }} · Created {{ c.created_at.strftime('%Y-%m-%d') }}</div>
+      <div class="claim-card-actions">
+        <form method="POST" action="{{ url_for('delete_claim', claim_id=c.id) }}" onsubmit="return confirm('Delete this claim?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% if pending.pages > 1 %}
+  <div class="pagination">
+    {% if pending.has_prev %}<a href="?page={{ pending.prev_num }}" class="btn btn-secondary btn-sm">Prev</a>{% endif %}
+    <span class="text-sm text-secondary">Page {{ pending.page }} of {{ pending.pages }}</span>
+    {% if pending.has_next %}<a href="?page={{ pending.next_num }}" class="btn btn-secondary btn-sm">Next</a>{% endif %}
+  </div>
+  {% endif %}
+  {% else %}
+  <div class="empty-state">
+    <h4>No pending claims</h4>
+    <p>Claims you submit will appear here until they're confirmed or denied.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

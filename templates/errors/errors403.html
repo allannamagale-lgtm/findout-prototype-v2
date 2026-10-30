@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}403 Forbidden — FINDOUT{% endblock %}
+{% block content %}
+<div class="narrow text-center">
+  <h1 class="error-code">403</h1>
+  <h2>Forbidden</h2>
+  <p class="text-secondary mb-6">You don't have permission to access this page.</p>
+  <a href="{{ url_for('home') }}" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}

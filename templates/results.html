@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Search Results — FINDOUT{% endblock %}
+{% block content %}
+<div class="narrow-wide">
+  <div class="mb-6">
+    <h1>Search Results</h1>
+    <p class="text-secondary">You searched for <strong>{{ searched_name }} {{ searched_surname }}</strong>.</p>
+  </div>
+
+  {% if public_claims %}
+  <div class="public-claims-banner">
+    <h3>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Public Relationships They Confirmed
+    </h3>
+    <p class="text-sm text-secondary mb-4">These are relationships both parties agreed to make public.</p>
+    {% for pc in public_claims %}
+    <div class="public-claim-item">
+      <div class="public-claim-avatar">{{ pc.claimer.real_name[0] }}</div>
+      <div class="public-claim-info">
+        <div class="public-claim-name">{{ pc.claimer.real_name }} {{ pc.claimer.real_surname }}</div>
+        <div class="public-claim-rel">{{ pc.relationship_state }}</div>
+      </div>
+      <div class="public-claim-date">{{ pc.confirmed_at.strftime('%Y-%m-%d') if pc.confirmed_at else '' }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="status-card {% if result_status == 'no-claim' %}success{% elif result_status == 'opted-out' %}danger{% elif result_status == 'conflicting' %}warning{% elif result_status == 'active-claim' %}info{% else %}neutral{% endif %}">
+    <h2 class="mb-2">
+      {% if result_status == 'no-claim' %}No Active Claims{% endif %}
+      {% if result_status == 'opted-out' %}Opted Out{% endif %}
+      {% if result_status == 'conflicting' %}Conflicting Claims{% endif %}
+      {% if result_status == 'active-claim' %}Active Claim Found{% endif %}
+    </h2>
+    <p class="text-secondary">
+      {% if result_status == 'no-claim' %}This person has no active relationship claims on FINDOUT.{% endif %}
+      {% if result_status == 'opted-out' %}This person has chosen to opt out of FINDOUT.{% endif %}
+      {% if result_status == 'conflicting' %}Multiple active claims exist for this person. Review carefully.{% endif %}
+      {% if result_status == 'active-claim' %}There is an active claim for this person.{% endif %}
+    </p>
+
+    {% if matched_fields %}
+    <div class="strength-block">
+      <div class="strength-header">
+        <div class="strength-label">Strength:</div>
+        <div class="strength-value strength-{{ claim_strength|lower }}">
+          {{ claim_strength }}
+          <span class="strength-score">({{ strength_score }})</span>
+        </div>
+      </div>
+      <div class="strength-divider"></div>
+      <div class="strength-subtitle">Confirmed by matching:</div>
+      <ul class="match-list">
+        {% for m in matched_fields %}
+        <li class="match-item {% if m.matched %}match-yes{% else %}match-no{% endif %}">
+          <span class="match-icon">{% if m.matched %}✓{% else %}✗{% endif %}</span>
+          <span class="match-field">{{ m.field }}</span>
+          <span class="match-weight">+{{ m.weight }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if phone_only %}
+      <div class="notice notice-warning mt-4">
+        <strong>⚠ Verify identity.</strong> Only the phone number matched. We recommend confirming the name, email, or employer before trusting this result.
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="status-stats">
+      <div><span class="stat-num">{{ claim_count }}</span><span class="stat-lbl">Claims</span></div>
+    </div>
+  </div>
+
+  {% if active_claims %}
+  <div class="section">
+    <h3 class="mb-2">Claim Types on Record</h3>
+    <p class="text-secondary text-sm mb-4">To protect privacy, only the type of claim is shown — never who made it.</p>
+    <div class="list-group">
+      {% for ac in active_claims %}
+      <div class="list-item">
+        <div class="list-item-content">
+          <div class="list-item-title">{{ ac.relationship_state }}</div>
+          <div class="list-item-meta">
+            <span class="badge badge-{{ 'success' if ac.status == 'mutual' else 'warning' }}">{{ ac.status }}</span>
+            <form method="POST" action="{{ url_for('report_claim', claim_id=ac.id) }}" style="display:inline; margin-left: auto;" onsubmit="return confirm('Report this claim for review?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="reason" value="Inappropriate or false claim">
+              <button type="submit" class="btn btn-ghost btn-sm text-xs" title="Report" style="color: var(--color-danger); padding: 2px 6px;">⚑ Report</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="text-center mt-8">
+    <a href="{{ url_for('search') }}" class="btn btn-secondary">New Search</a>
+  </div>
+</div>
+{% endblock %}

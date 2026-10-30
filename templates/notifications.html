@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Notifications — FINDOUT{% endblock %}
+{% block content %}
+<div class="narrow-wide">
+  <div class="mb-6">
+    <h1>Notifications</h1>
+    <p class="text-secondary">Updates about your claims and responses.</p>
+  </div>
+
+  {% if notifications.items %}
+  <div class="notif-list">
+    {% for n in notifications.items %}
+      {% set link_url = url_for('dashboard') %}
+      {% if n.type == 'new_claim' %}{% set link_url = url_for('dashboard', highlight_claim=n.claim_id) + '#claims-about-you' %}
+      {% elif n.type == 'claim_accepted' %}{% set link_url = url_for('active_claims', highlight_claim=n.claim_id) %}
+      {% elif n.type == 'claim_rejected' %}{% set link_url = url_for('rejected_claims', highlight_claim=n.claim_id) %}
+      {% elif n.type == 'claim_ended' %}{% set link_url = url_for('active_claims', highlight_claim=n.claim_id) %}
+      {% elif n.type == 'claim_ignored' %}{% set link_url = url_for('pending_claims', highlight_claim=n.claim_id) %}
+      {% endif %}
+    <a href="{{ link_url }}" class="notif-item {% if not n.is_read %}unread{% endif %}">
+      <div class="notif-content">
+        <div class="notif-title">{{ n.message }}</div>
+        <div class="notif-time">{{ n.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </a>
+    {% endfor %}
+  </div>
+  {% if notifications.pages > 1 %}
+  <div class="pagination">
+    {% if notifications.has_prev %}<a href="?page={{ notifications.prev_num }}" class="btn btn-secondary btn-sm">Prev</a>{% endif %}
+    <span class="text-sm text-secondary">Page {{ notifications.page }} of {{ notifications.pages }}</span>
+    {% if notifications.has_next %}<a href="?page={{ notifications.next_num }}" class="btn btn-secondary btn-sm">Next</a>{% endif %}
+  </div>
+  {% endif %}
+  {% else %}
+  <div class="empty-state">
+    <h3>No notifications</h3>
+    <p>You're all caught up.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

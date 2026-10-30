@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Consent — FINDOUT{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="consent-box">
+    <div class="text-center mb-6">
+      <h2>Informed Consent</h2>
+      <p class="text-secondary">Before using FINDOUT, please confirm you understand and agree to the following:</p>
+    </div>
+    <ul class="consent-list">
+      <li>You are 18 years of age or older.</li>
+      <li>You consent to having your relationship claims stored and searched by other registered users.</li>
+      <li>You understand that claims require mutual confirmation before they are considered verified.</li>
+      <li>You may opt out at any time, which will remove all claims associated with your profile.</li>
+      <li>You will use this platform responsibly and respectfully.</li>
+      <li>Searches are logged and rate-limited to comply with POPI.</li>
+    </ul>
+    <form method="POST" action="{{ url_for('consent') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-primary btn-block">I Agree &amp; Continue</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

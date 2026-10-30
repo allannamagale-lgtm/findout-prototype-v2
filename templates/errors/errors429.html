@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Rate Limited — FINDOUT{% endblock %}
+{% block content %}
+<div class="narrow text-center">
+  <h1 class="error-code">429</h1>
+  <h2>Too many requests</h2>
+  <p class="text-secondary mb-6">You've hit the rate limit. Please try again later. This helps us keep the platform safe for everyone.</p>
+  <a href="{{ url_for('home') }}" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}

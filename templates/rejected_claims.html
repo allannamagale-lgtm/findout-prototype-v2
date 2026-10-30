@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Rejected Claims — FINDOUT{% endblock %}
+{% block content %}
+<div class="narrow-wide">
+  <div class="mb-6">
+    <h1>Rejected Claims</h1>
+    <p class="text-secondary">Claims that were denied or removed in the last 3 days.</p>
+  </div>
+
+  {% if rejected_as_claimer or rejected_as_subject %}
+    {% if rejected_as_claimer %}
+    <div class="section">
+      <h3 class="mb-4">Rejected by Others</h3>
+      <div class="list-group">
+        {% for c in rejected_as_claimer %}
+        <div class="claim-card {% if highlight_claim == c.id %}highlight{% endif %}" id="claim-{{ c.id }}">
+          <div class="claim-card-header">
+            <span class="claim-card-title">{{ c.relationship_state }}</span>
+            <span class="badge badge-danger">Denied</span>
+          </div>
+          <div class="claim-card-meta">
+            Subject: <strong>{{ c.subject.name }} {{ c.subject.surname }}</strong> · Removed {{ c.removed_at.strftime('%Y-%m-%d') if c.removed_at else '' }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if rejected_as_subject %}
+    <div class="section">
+      <h3 class="mb-4">You Rejected</h3>
+      <div class="list-group">
+        {% for c in rejected_as_subject %}
+        <div class="claim-card {% if highlight_claim == c.id %}highlight{% endif %}" id="claim-{{ c.id }}">
+          <div class="claim-card-header">
+            <span class="claim-card-title">{{ c.relationship_state }}</span>
+            <span class="badge badge-danger">Denied</span>
+          </div>
+          <div class="claim-card-meta">
+            Claimer: <strong>{{ c.claimer.real_name }} {{ c.claimer.real_surname }}</strong> · Removed {{ c.removed_at.strftime('%Y-%m-%d') if c.removed_at else '' }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  {% else %}
+  <div class="empty-state">
+    <h4>No recent rejections</h4>
+    <p>Denied claims are shown here for 3 days, then removed permanently.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

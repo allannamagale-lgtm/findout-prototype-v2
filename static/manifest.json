@@ -1,0 +1,19 @@
+{
+  "name": "FINDOUT — Relationship Transparency",
+  "short_name": "FINDOUT",
+  "description": "Verify relationship claims with consent, clarity, and dignity.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f9fc",
+  "theme_color": "#0d7f6f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

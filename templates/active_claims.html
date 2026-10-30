@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Active Claims — FINDOUT{% endblock %}
+{% block content %}
+<div class="narrow-wide">
+  <div class="mb-6">
+    <h1>Active Claims</h1>
+    <p class="text-secondary">Mutual claims that both parties have confirmed.</p>
+  </div>
+
+  {% if (as_claimer.items if as_claimer is not mapping else as_claimer) or (as_subject.items if as_subject is not mapping and as_subject else as_subject) %}
+    {% if as_claimer and (as_claimer.items if as_claimer is not mapping else as_claimer) %}
+    <div class="section">
+      <h3 class="mb-4">As Claimer</h3>
+      <div class="list-group">
+        {% for c in (as_claimer.items if as_claimer is not mapping else as_claimer) %}
+        <div class="claim-card {% if highlight_claim == c.id %}highlight{% endif %}" id="claim-{{ c.id }}">
+          <div class="claim-card-header">
+            <span class="claim-card-title">{{ c.relationship_state }}</span>
+            <span class="badge badge-success">Mutual</span>
+          </div>
+          <div class="claim-card-meta">With <strong>{{ c.subject.name }} {{ c.subject.surname }}</strong> · Confirmed {{ c.confirmed_at.strftime('%Y-%m-%d') if c.confirmed_at else '' }}</div>
+          <div class="claim-card-actions">
+            <form method="POST" action="{{ url_for('toggle_public', claim_id=c.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-secondary btn-sm">{% if c.is_public %}Make Private{% else %}Make Public{% endif %}</button>
+            </form>
+            <form method="POST" action="{{ url_for('end_claim', claim_id=c.id) }}" onsubmit="return confirm('End this claim?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm">End Claim</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if as_subject and (as_subject.items if as_subject is not mapping else as_subject) %}
+    <div class="section">
+      <h3 class="mb-4">As Subject</h3>
+      <div class="list-group">
+        {% for c in (as_subject.items if as_subject is not mapping else as_subject) %}
+        <div class="claim-card {% if highlight_claim == c.id %}highlight{% endif %}" id="claim-{{ c.id }}">
+          <div class="claim-card-header">
+            <span class="claim-card-title">{{ c.relationship_state }}</span>
+            <span class="badge badge-success">Mutual</span>
+          </div>
+          <div class="claim-card-meta">Claimed by <strong>{{ c.claimer.real_name }} {{ c.claimer.real_surname }}</strong> · Confirmed {{ c.confirmed_at.strftime('%Y-%m-%d') if c.confirmed_at else '' }}</div>
+          <div class="claim-card-actions">
+            <form method="POST" action="{{ url_for('toggle_public', claim_id=c.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-secondary btn-sm">{% if c.is_public %}Make Private{% else %}Make Public{% endif %}</button>
+            </form>
+            <form method="POST" action="{{ url_for('end_claim', claim_id=c.id) }}" onsubmit="return confirm('End this claim?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm">End Claim</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  {% else %}
+  <div class="empty-state">
+    <h4>No active claims</h4>
+    <p>When a claim is mutually confirmed, it will appear here.</p>
+    <a href="{{ url_for('claim') }}" class="btn btn-primary btn-sm">Create a Claim</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

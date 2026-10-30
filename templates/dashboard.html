@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — FINDOUT{% endblock %}
+{% block content %}
+<div class="mb-6">
+  <h1>Dashboard</h1>
+  <p class="text-secondary">Welcome back, {{ session.user_name }}.</p>
+</div>
+
+<div class="stats-grid mb-8">
+  <a href="{{ url_for('active_claims') }}" class="stat-card">
+    <div class="stat-value">{{ stats.active }}</div>
+    <div class="stat-label">Mutual Claims</div>
+  </a>
+  <a href="{{ url_for('pending_claims') }}" class="stat-card">
+    <div class="stat-value">{{ stats.pending }}</div>
+    <div class="stat-label">Pending</div>
+  </a>
+  <a href="#claims-about-you" class="stat-card">
+    <div class="stat-value">{{ stats.about_me }}</div>
+    <div class="stat-label">About You</div>
+  </a>
+  <a href="{{ url_for('rejected_claims') }}" class="stat-card">
+    <div class="stat-value">{{ stats.rejected }}</div>
+    <div class="stat-label">Recent Denied</div>
+  </a>
+</div>
+
+<div class="grid grid-2">
+  <div class="section">
+    <div class="section-header">
+      <h3>My Claims</h3>
+      <a href="{{ url_for('claim') }}" class="btn btn-primary btn-sm">+ New Claim</a>
+    </div>
+    {% if my_claims %}
+    <div class="list-group">
+      {% for c in my_claims %}
+      <div class="list-item" id="claim-{{ c.id }}">
+        <div class="list-item-content">
+          <div class="list-item-title">{{ c.subject.name }} {{ c.subject.surname }}</div>
+          <div class="list-item-meta">
+            {% if c.status == 'mutual' %}<span class="badge badge-success">Mutual</span>
+            {% else %}<span class="badge badge-warning">Pending</span>{% endif %}
+            <span class="ml-2">{{ c.relationship_state }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mt-4 flex gap-3">
+      <a href="{{ url_for('active_claims') }}" class="btn btn-secondary btn-sm">Active</a>
+      <a href="{{ url_for('pending_claims') }}" class="btn btn-secondary btn-sm">Pending</a>
+      <a href="{{ url_for('rejected_claims') }}" class="btn btn-secondary btn-sm">Rejected</a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <h4>No claims yet</h4>
+      <p class="text-sm">Start by creating a relationship claim or searching for someone.</p>
+      <a href="{{ url_for('claim') }}" class="btn btn-primary btn-sm">Create Claim</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="section" id="claims-about-you">
+    <h3 class="mb-4">Claims About You</h3>
+    {% if claims_about_me %}
+    <div class="list-group">
+      {% for c in claims_about_me %}
+      <div class="claim-card {% if highlight_claim == c.id %}highlight{% endif %}" id="claim-{{ c.id }}">
+        <div class="claim-card-header">
+          <span class="claim-card-title">{{ c.claimer.real_name }} {{ c.claimer.real_surname }}</span>
+          <span class="badge badge-warning">Awaiting Response</span>
+        </div>
+        <div class="claim-card-meta">Claims a <strong>{{ c.relationship_state }}</strong> relationship with you.</div>
+        <div class="claim-card-actions">
+          <form method="POST" action="{{ url_for('respond', claim_id=c.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="response_type" value="confirm">
+            <button type="submit" class="btn btn-primary btn-sm">Confirm</button>
+          </form>
+          <form method="POST" action="{{ url_for('respond', claim_id=c.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="response_type" value="deny">
+            <button type="submit" class="btn btn-danger btn-sm">Deny</button>
+          </form>
+          <form method="POST" action="{{ url_for('respond', claim_id=c.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="response_type" value="ignore">
+            <button type="submit" class="btn btn-ghost btn-sm">Ignore</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <h4>No claims about you</h4>
+      <p class="text-sm">When someone makes a claim involving you, it will appear here.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="section mt-6">
+  <h3 class="mb-4">Recent Searches</h3>
+  {% if my_searches %}
+  <div class="list-group">
+    {% for s in my_searches %}
+    <div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title">{{ s.searched_name }} {{ s.searched_surname }}</div>
+        <div class="list-item-meta">
+          {% if s.search_type %}<span class="badge badge-neutral">{{ s.search_type }}</span>{% endif %}
+          <span class="ml-2">{{ s.result_summary }}</span>
+          {% if s.strength_label %}<span class="ml-2 badge badge-{{ 'success' if s.strength_label == 'Strong' else 'warning' if s.strength_label == 'Moderate' else 'neutral' }}">{{ s.strength_label }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="list-item-meta text-xs">{{ s.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p class="text-secondary">No searches yet. <a href="{{ url_for('search') }}">Run your first search</a>.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

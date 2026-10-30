@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Opt Out — FINDOUT{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="card danger-card">
+    <div class="text-center mb-6">
+      <h2>Opt Out of FINDOUT</h2>
+      <p>This action will:</p>
+    </div>
+    <ul class="consent-list">
+      <li>Remove all claims where you are the subject</li>
+      <li>Prevent anyone from making future claims about you</li>
+      <li>Keep your account active for searching</li>
+    </ul>
+    <p class="text-sm text-secondary mb-6">You can re-enable your profile later by contacting support.</p>
+    <form method="POST" action="{{ url_for('opt_out') }}" onsubmit="return confirm('Are you sure? This cannot be undone.');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-danger btn-block">Confirm Opt Out</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
