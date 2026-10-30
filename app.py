@@ -347,8 +347,11 @@ def create_app(config_name="default"):
     register_routes(app)
     register_cli(app)
     register_errors(app)
-    return app
 
+    with app.app_context():
+        db.create_all()
+
+    return app
 
 # ============================================================
 # Routes
